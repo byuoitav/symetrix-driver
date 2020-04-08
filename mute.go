@@ -29,15 +29,14 @@ func (d *SymetrixDSP) GetMutedByBlock(ctx context.Context, block string) (bool, 
 // SetMutedByBlock sets the mute state on the given block
 func (d *SymetrixDSP) SetMutedByBlock(ctx context.Context, block string, muted bool) error {
 
-	c, err := net.Dial("tcp", Address+":48631")
+	c, err := net.Dial("tcp", d.Address+":48631")
 	if err != nil {
 		fmt.Println("unable to establish TCP client")
 		return fmt.Errorf("unable to establish TCP client: %w", err)
 	}
 	if muted {
 		fmt.Fprintf(c, "CS %v 65535\n", block)
-	}
-	else {
+	} else {
 		fmt.Fprintf(c, "CS %v 0\n", block)
 	}
 	result, err := bufio.NewReader(c).ReadString('\n')
@@ -47,16 +46,13 @@ func (d *SymetrixDSP) SetMutedByBlock(ctx context.Context, block string, muted b
 	if muted {
 		if result != "ACK\n#0000%v=0\n" {
 			return fmt.Errorf("Unsuccessful")
-		}
-		else {
+		} else {
 			return nil
 		}
-	}
-	else {
+	} else {
 		if result != "ACK\n#0000%v=65535\n" {
-			return false, fmt.Errorf("Unsuccessful")
-		}
-		else {
+			return fmt.Errorf("Unsuccessful")
+		} else {
 			return nil
 		}
 	}
