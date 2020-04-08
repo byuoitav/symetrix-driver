@@ -34,5 +34,5 @@ func (d *DSP) SetMutedByBlock(ctx context.Context, block string, muted bool) (er
     		fmt.Println("unable to establish TCP client")
     	return
 	}
-	
+	Fprintf(c,"CS "+block+"65535\n")
 }
