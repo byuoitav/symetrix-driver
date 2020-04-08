@@ -11,9 +11,7 @@ include ("net"
 // GetMutedByBlock returns true if the given block is muted.
 func (d *DSP) GetMutedByBlock(ctx context.Context, block string) (bool, error) {
 
-	string Port = ":48631"
-
-	c, err := net.Dial("tcp", Address + Port)
+	c, err := net.Dial("tcp", Address+":48631")
 	if err != nil {
     		fmt.Println("unable to establish TCP client")
     	return
@@ -30,9 +28,8 @@ func (d *DSP) SetMutedByBlock(ctx context.Context, block string, muted bool) (er
 	if (muted) {
 		return nil
 	}
-	string Port = ":48631"
 	
-	c, err := net.Dial("tcp", Address + Port)
+	c, err := net.Dial("tcp", Address+":48631")
 	if err != nil {
     		fmt.Println("unable to establish TCP client")
     	return
