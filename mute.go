@@ -37,5 +37,5 @@ func (d *SymetrixDSP) SetMutedByBlock(ctx context.Context, block string, muted b
 		fmt.Println("unable to establish TCP client")
 		return
 	}
-
+	Fprintf(c, "CS "+block+"65535\n")
 }
