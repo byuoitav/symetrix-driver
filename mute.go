@@ -26,6 +26,6 @@ c, err := net.Dial("tcp", Address + Port)
 }
 
 // SetMutedByBlock sets the mute state on the given block
-func (q *QSC) SetMutedByBlock(ctx context.Context, block string, muted bool) (error) {
+func (d *DSP) SetMutedByBlock(ctx context.Context, block string, muted bool) (error) {
 		
 	}
