@@ -1,10 +1,10 @@
 package main
 
 import (
-        //"bufio"
+        "bufio"
         "fmt"
         "net"
-	//"os"
+	"os"
 	"strconv"
 	"strings"
 	)
@@ -26,11 +26,11 @@ func main() {
 
         defer c.Close()
         fmt.Printf("result= %sType: %T\n", block, block)
-        //reader := bufio.NewReader(os.Stdin)
-        //fmt.Print(">> ")
-        //block, _ = reader.ReadString('\n')
-        //fmt.Print(block)
-        //fmt.Printf("result= %sType: %T\n", block, block)
+        reader := bufio.NewReader(os.Stdin)
+        fmt.Print(">> ")
+        block, _ = reader.ReadString('\n')
+        fmt.Print(block)
+        fmt.Printf("result= %sType: %T\n", block, block)
         text := fmt.Sprintf("GS %v", block)
         fmt.Print(text)
 
@@ -43,9 +43,9 @@ func main() {
                 return
         }
         buffer := make([]byte, 1024)
-        fmt.Print("Reached point 1\n")
+        fmt.Print("test\n")
         n, _, err2 := c.ReadFromUDP(buffer)
-        fmt.Print("Reached point 2\n")
+        fmt.Print("test\n")
         if err2 != nil {
                 fmt.Println(err)
                 return
