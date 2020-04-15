@@ -43,9 +43,9 @@ func main() {
                 return
         }
         buffer := make([]byte, 1024)
-        fmt.Print("test\n")
+        fmt.Print("Reached point 1\n")
         n, _, err2 := c.ReadFromUDP(buffer)
-        fmt.Print("test\n")
+        fmt.Print("Reached point 2\n")
         if err2 != nil {
                 fmt.Println(err)
                 return
