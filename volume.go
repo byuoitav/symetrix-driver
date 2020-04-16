@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 // GetVolumeByBlock returns the volume [0, 100] of the given block.
 func (d *DSP) GetVolumeByBlock(ctx context.Context, block string) (int, error) {
 
-	s, err := net.ResolveUDPAddr("udp4", address+":48631")
+	s, err := net.ResolveUDPAddr("udp4", d.address+":48631")
 	c, err := net.DialUDP("udp4", nil, s)
 	if err != nil {
 		return -1, fmt.Errorf("unable to establish UDP client: %w", err)
@@ -56,7 +57,7 @@ func (d *DSP) SetVolumeByBlock(ctx context.Context, block string, volume int) er
 		return fmt.Errorf("volume must be in range [0, 100]")
 	}
 	
-	s, err := net.ResolveUDPAddr("udp4", address+":48631")
+	s, err := net.ResolveUDPAddr("udp4", d.address+":48631")
 	c, err := net.DialUDP("udp4", nil, s)
 	if err != nil {
 		return fmt.Errorf("unable to establish UDP client: %w", err)
@@ -82,7 +83,6 @@ func (d *DSP) SetVolumeByBlock(ctx context.Context, block string, volume int) er
     val := fmt.Sprintf("%s", string(buffer[0:n]))
 
     if (val == "ACK\r") {
-        fmt.Println("GOOD\n")
         return nil
     }
 
