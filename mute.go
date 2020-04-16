@@ -5,55 +5,92 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strconv"
+	"strings"
+)
+
+const (
+	MUTE_ENABLE_VAL = 65535
 )
 
 // GetMutedByBlock returns true if the given block is muted.
 func (d *SymetrixDSP) GetMutedByBlock(ctx context.Context, block string) (bool, error) {
 
-	c, err := net.Dial("tcp", d.Address+":48631")
+	s, err := net.ResolveUDPAddr("udp4", d.address+":48631")
+	c, err := net.DialUDP("udp4", nil, s)
 	if err != nil {
-		fmt.Println("unable to establish TCP client")
-		return false, fmt.Errorf("unable to establish TCP client: %w", err)
+		return false, fmt.Errorf("unable to establish UDP client: %w", err)
 	}
-	fmt.Fprintf(c, "GS %v\n", block)
-	result, err := bufio.NewReader(c).ReadString('\n')
+
+    defer c.Close()
+
+	text := fmt.Sprintf("GS %v\r\n", block)
+	data := []byte(text)
+	_, err = c.Write(data)
+
 	if err != nil {
+		fmt.Println(err)
+		return false, fmt.Errorf("unable to write to client: %w", err)
+	}
+
+	buffer := make([]byte, 1024)
+	n, _, err := c.ReadFromUDP(buffer)
+	if err != nil {
+		fmt.Println(err)
 		return false, fmt.Errorf("unable to read response: %w", err)
 	}
-	if result == "0\n" {
-		return false, fmt.Errorf("TODO")
+
+	val := string(buffer[0:n])
+	result, err := strconv.ParseInt(strings.TrimSpace(val), 10, 64)
+	
+	if (result == MUTE_ENABLE_VAL)  {
+		return true, nil
 	}
-	return true, nil
+
+	return false, nil
 }
 
 // SetMutedByBlock sets the mute state on the given block
 func (d *SymetrixDSP) SetMutedByBlock(ctx context.Context, block string, muted bool) error {
 
-	c, err := net.Dial("tcp", d.Address+":48631")
+	s, err := net.ResolveUDPAddr("udp4", d.address+":48631")
+	c, err := net.DialUDP("udp4", nil, s)
 	if err != nil {
-		fmt.Println("unable to establish TCP client")
-		return fmt.Errorf("unable to establish TCP client: %w", err)
+		return fmt.Errorf("unable to establish UDP client: %w", err)
 	}
+	defer c.Close()
+
+	muteVal := 0
 	if muted {
-		fmt.Fprintf(c, "CS %v 65535\n", block)
-	} else {
-		fmt.Fprintf(c, "CS %v 0\n", block)
+		muteVal = MUTE_ENABLE_VAL
 	}
-	result, err := bufio.NewReader(c).ReadString('\n')
+	text := fmt.Sprintf("CS %v %v\r\n", block, muteVal)
+
+	data := []byte(text)
+	_, err = c.Write(data)
 	if err != nil {
+		fmt.Println(err)
+		return fmt.Errorf("unable to write to client: %w", err)
+	}
+
+	buffer := make([]byte, 1024)
+	n, _, err := c.ReadFromUDP(buffer)
+	if err != nil {
+		fmt.Println(err)
 		return fmt.Errorf("unable to read response: %w", err)
 	}
+
+	val := fmt.Sprintf("%s", string(buffer[0:n]))
 	if muted {
-		if result != "ACK\n#0000%v=0\n" {
-			return fmt.Errorf("Unsuccessful")
-		} else {
+		if (val == "ACK\r") {
 			return nil
 		}
-	} else {
-		if result != "ACK\n#0000%v=65535\n" {
-			return fmt.Errorf("Unsuccessful")
-		} else {
+		return fmt.Errorf("Unsuccessful")
+	}
+	else {
+		if (val == "ACK\r") {
 			return nil
 		}
+		return fmt.Errorf("Unsuccessful")
 	}
 }
