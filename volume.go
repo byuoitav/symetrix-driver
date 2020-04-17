@@ -15,13 +15,13 @@ const (
 // GetVolumeByBlock returns the volume [0, 100] of the given block.
 func (d *DSP) GetVolumeByBlock(ctx context.Context, block string) (int, error) {
 
-	s, err := net.ResolveUDPAddr("udp4", d.address+":48631")
+	s, err := net.ResolveUDPAddr("udp4", d.Address+":48631")
 	c, err := net.DialUDP("udp4", nil, s)
 	if err != nil {
 		return -1, fmt.Errorf("unable to establish UDP client: %w", err)
 	}
 
-    defer c.Close()
+	defer c.Close()
 
 	text := fmt.Sprintf("GS %v\r\n", block)
 	data := []byte(text)
@@ -41,7 +41,7 @@ func (d *DSP) GetVolumeByBlock(ctx context.Context, block string) (int, error) {
 
 	val := string(buffer[0:n])
 	result, err := strconv.ParseInt(strings.TrimSpace(val), 10, 64)
-	
+
 	if result > maxVolumeLevel {
 		result = 56000
 	}
@@ -56,15 +56,15 @@ func (d *DSP) SetVolumeByBlock(ctx context.Context, block string, volume int) er
 	if volume < 0 || volume > 100 {
 		return fmt.Errorf("volume must be in range [0, 100]")
 	}
-	
-	s, err := net.ResolveUDPAddr("udp4", d.address+":48631")
+
+	s, err := net.ResolveUDPAddr("udp4", d.Address+":48631")
 	c, err := net.DialUDP("udp4", nil, s)
 	if err != nil {
 		return fmt.Errorf("unable to establish UDP client: %w", err)
 	}
 
-    defer c.Close()
-    volume = volume * (maxVolumeLevel / 100)
+	defer c.Close()
+	volume = volume * (maxVolumeLevel / 100)
 	text := fmt.Sprintf("CS %v %v\r\n", block, volume)
 	data := []byte(text)
 	_, err = c.Write(data)
@@ -80,11 +80,11 @@ func (d *DSP) SetVolumeByBlock(ctx context.Context, block string, volume int) er
 		fmt.Println(err)
 		return fmt.Errorf("unable to read response: %w", err)
 	}
-    val := fmt.Sprintf("%s", string(buffer[0:n]))
+	val := fmt.Sprintf("%s", string(buffer[0:n]))
 
-    if (val == "ACK\r") {
-        return nil
-    }
+	if val == "ACK\r" {
+		return nil
+	}
 
 	return fmt.Errorf("Unsuccessful Volume Change")
 }

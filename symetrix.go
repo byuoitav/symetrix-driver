@@ -1,7 +1,7 @@
 package symetrix
 
-// SymetrixDSP represents a SymetrixDSP
-type SymetrixDSP struct {
+// DSP represents a DSP
+type DSP struct {
 	Address string
 }
 
