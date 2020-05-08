@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -14,7 +15,6 @@ const (
 
 // GetMutedByBlock returns true if the given block is muted.
 func (d *DSP) GetMutedByBlock(ctx context.Context, block string) (bool, error) {
-
 	s, err := net.ResolveUDPAddr("udp4", d.Address+":48631")
 	c, err := net.DialUDP("udp4", nil, s)
 	if err != nil {
@@ -22,6 +22,7 @@ func (d *DSP) GetMutedByBlock(ctx context.Context, block string) (bool, error) {
 	}
 
 	defer c.Close()
+	c.SetReadDeadline(time.Now().Add(5 * time.Second))
 
 	text := fmt.Sprintf("GS %v\r\n", block)
 	data := []byte(text)
@@ -57,6 +58,7 @@ func (d *DSP) SetMutedByBlock(ctx context.Context, block string, muted bool) err
 		return fmt.Errorf("unable to establish UDP client: %w", err)
 	}
 	defer c.Close()
+	c.SetReadDeadline(time.Now().Add(5 * time.Second))
 
 	muteVal := 0
 	if muted {

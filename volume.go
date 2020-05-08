@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -22,6 +23,7 @@ func (d *DSP) GetVolumeByBlock(ctx context.Context, block string) (int, error) {
 	}
 
 	defer c.Close()
+	c.SetReadDeadline(time.Now().Add(5 * time.Second))
 
 	text := fmt.Sprintf("GS %v\r\n", block)
 	data := []byte(text)
@@ -64,6 +66,7 @@ func (d *DSP) SetVolumeByBlock(ctx context.Context, block string, volume int) er
 	}
 
 	defer c.Close()
+	c.SetReadDeadline(time.Now().Add(5 * time.Second))
 	volume = volume * (maxVolumeLevel / 100)
 	text := fmt.Sprintf("CS %v %v\r\n", block, volume)
 	data := []byte(text)
